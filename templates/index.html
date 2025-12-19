@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>    
+    <title>Crime Stats</title>
+</head>
+<body>
+    <h1>Regina Crime Dashboard - February 2025</h1>
+    <p style="text-align: center;"> I would like to acknowledge that all data has been taken from the official website of the Regina police and can be viewed <a href="https://www.reginapolice.ca/resources/crime/community-crime-statistics-2025/">here.</a></p>
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <form>
+            <select id="areaSelect">
+                <option value="all">All Areas</option>
+                {% for area in areas %}
+                    <option value="{{ area }}">{{ area }}</option>
+                {% endfor %}
+            </select>    
+        </form>
+    </div>
+
+    <div class="map-container">
+        {{ map|safe }}
+    </div>
+
+    <div id="overallPie" style="width: 600px; height: 400px; margin: auto;"></div>
+    <div id="typePie" style="width: 600px; height: 400px; margin: auto; margin-top: 2rem;"></div>
+
+    {% if pie_data %}
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawStaticPieChart);
+    
+        function drawStaticPieChart() {
+            const rawData = {{ pie_data | tojson | safe }};
+            const data = google.visualization.arrayToDataTable(
+                [['Area', 'Total Crime']].concat(rawData)
+            );
+    
+            const options = {
+                title: 'Total Crime by Area',
+                pieHole: 0.3,
+                chartArea: {width: '90%', height: '80%'},
+                legend: {position: 'right'}
+            };
+    
+            const chart = new google.visualization.PieChart(document.getElementById('overallPie'));
+            chart.draw(data, options);
+        }
+    </script>
+    
+{% endif %}
+
+</body>
+</html>
